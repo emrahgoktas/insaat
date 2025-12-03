@@ -38,8 +38,16 @@ export default function ReferencesPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6">
             {clients.map((client, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6 text-center">
-                  <div className="text-4xl mb-2">{client.logo}</div>
+                <CardContent className="p-6 text-center flex flex-col items-center justify-center min-h-[140px]">
+                  {client.isImage ? (
+                    <img 
+                      src={client.logo} 
+                      alt={client.name}
+                      className="h-16 w-auto mb-2 object-contain"
+                    />
+                  ) : (
+                    <div className="text-4xl mb-2">{client.logo}</div>
+                  )}
                   <p className="text-xs font-semibold text-foreground">{client.name}</p>
                 </CardContent>
               </Card>
