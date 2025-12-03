@@ -136,7 +136,15 @@ export default function HomePage() {
                     >
                       <Card className="w-48 h-32 flex items-center justify-center">
                         <CardContent className="p-6 text-center">
-                          <div className="text-5xl mb-2">{client.logo}</div>
+                          {client.isImage ? (
+                            <img 
+                              src={client.logo} 
+                              alt={client.name}
+                              className="h-16 w-auto mx-auto mb-2 object-contain"
+                            />
+                          ) : (
+                            <div className="text-5xl mb-2">{client.logo}</div>
+                          )}
                           <p className="text-sm font-semibold text-foreground">{client.name}</p>
                         </CardContent>
                       </Card>
