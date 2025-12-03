@@ -1,104 +1,148 @@
-import { MongoClient } from 'mongodb'
-import { v4 as uuidv4 } from 'uuid'
-import { NextResponse } from 'next/server'
+import { MongoClient } from 'mongodb';
+import { NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
 
-// MongoDB connection
-let client
-let db
+const MONGO_URL = process.env.MONGO_URL;
+const DB_NAME = process.env.DB_NAME || 'halef_grup_yapi';
 
-async function connectToMongo() {
-  if (!client) {
-    client = new MongoClient(process.env.MONGO_URL)
-    await client.connect()
-    db = client.db(process.env.DB_NAME)
+let cachedClient = null;
+
+async function connectToDatabase() {
+  if (cachedClient) {
+    return cachedClient;
   }
-  return db
+
+  try {
+    const client = await MongoClient.connect(MONGO_URL, {
+      maxPoolSize: 10,
+      minPoolSize: 2,
+    });
+    cachedClient = client;
+    console.log('MongoDB bağlantısı başarılı');
+    return client;
+  } catch (error) {
+    console.error('MongoDB bağlantı hatası:', error);
+    throw error;
+  }
 }
 
-// Helper function to handle CORS
-function handleCORS(response) {
-  response.headers.set('Access-Control-Allow-Origin', process.env.CORS_ORIGINS || '*')
-  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-  response.headers.set('Access-Control-Allow-Credentials', 'true')
-  return response
-}
+// CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
 
 // OPTIONS handler for CORS
 export async function OPTIONS() {
-  return handleCORS(new NextResponse(null, { status: 200 }))
+  return NextResponse.json({}, { headers: corsHeaders });
 }
 
-// Route handler function
-async function handleRoute(request, { params }) {
-  const { path = [] } = params
-  const route = `/${path.join('/')}`
-  const method = request.method
-
+// GET handler
+export async function GET(request) {
   try {
-    const db = await connectToMongo()
+    const { pathname } = new URL(request.url);
+    const pathParts = pathname.split('/').filter(Boolean);
+    const endpoint = pathParts[1]; // 'api' sonrası ilk segment
 
-    // Root endpoint - GET /api/root (since /api/ is not accessible with catch-all)
-    if (route === '/root' && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: "Hello World" }))
-    }
-    // Root endpoint - GET /api/root (since /api/ is not accessible with catch-all)
-    if (route === '/' && method === 'GET') {
-      return handleCORS(NextResponse.json({ message: "Hello World" }))
-    }
+    const client = await connectToDatabase();
+    const db = client.db(DB_NAME);
 
-    // Status endpoints - POST /api/status
-    if (route === '/status' && method === 'POST') {
-      const body = await request.json()
-      
-      if (!body.client_name) {
-        return handleCORS(NextResponse.json(
-          { error: "client_name is required" }, 
-          { status: 400 }
-        ))
-      }
-
-      const statusObj = {
-        id: uuidv4(),
-        client_name: body.client_name,
-        timestamp: new Date()
-      }
-
-      await db.collection('status_checks').insertOne(statusObj)
-      return handleCORS(NextResponse.json(statusObj))
-    }
-
-    // Status endpoints - GET /api/status
-    if (route === '/status' && method === 'GET') {
-      const statusChecks = await db.collection('status_checks')
+    // İletişim formlarını getir
+    if (endpoint === 'contacts') {
+      const contacts = await db.collection('contacts')
         .find({})
-        .limit(1000)
-        .toArray()
+        .sort({ createdAt: -1 })
+        .toArray();
 
-      // Remove MongoDB's _id field from response
-      const cleanedStatusChecks = statusChecks.map(({ _id, ...rest }) => rest)
-      
-      return handleCORS(NextResponse.json(cleanedStatusChecks))
+      return NextResponse.json(
+        { success: true, data: contacts },
+        { headers: corsHeaders }
+      );
     }
 
-    // Route not found
-    return handleCORS(NextResponse.json(
-      { error: `Route ${route} not found` }, 
-      { status: 404 }
-    ))
+    // Varsayılan endpoint
+    return NextResponse.json(
+      { success: true, message: 'Halef Grup Yapı API' },
+      { headers: corsHeaders }
+    );
 
   } catch (error) {
-    console.error('API Error:', error)
-    return handleCORS(NextResponse.json(
-      { error: "Internal server error" }, 
-      { status: 500 }
-    ))
+    console.error('GET Error:', error);
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500, headers: corsHeaders }
+    );
   }
 }
 
-// Export all HTTP methods
-export const GET = handleRoute
-export const POST = handleRoute
-export const PUT = handleRoute
-export const DELETE = handleRoute
-export const PATCH = handleRoute
+// POST handler
+export async function POST(request) {
+  try {
+    const { pathname } = new URL(request.url);
+    const pathParts = pathname.split('/').filter(Boolean);
+    const endpoint = pathParts[1];
+
+    const body = await request.json();
+
+    const client = await connectToDatabase();
+    const db = client.db(DB_NAME);
+
+    // İletişim formu gönderimi
+    if (endpoint === 'contact') {
+      const { name, email, phone, subject, message, kvkkConsent } = body;
+
+      // Validasyon
+      if (!name || !email || !message || !kvkkConsent) {
+        return NextResponse.json(
+          { success: false, error: 'Lütfen tüm zorunlu alanları doldurun' },
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      // Email format kontrolü
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return NextResponse.json(
+          { success: false, error: 'Geçerli bir e-posta adresi girin' },
+          { status: 400, headers: corsHeaders }
+        );
+      }
+
+      const contactData = {
+        id: uuidv4(),
+        name,
+        email,
+        phone: phone || '',
+        subject: subject || 'Genel',
+        message,
+        kvkkConsent,
+        status: 'new',
+        createdAt: new Date().toISOString(),
+      };
+
+      await db.collection('contacts').insertOne(contactData);
+
+      return NextResponse.json(
+        { 
+          success: true, 
+          message: 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.',
+          data: { id: contactData.id }
+        },
+        { headers: corsHeaders }
+      );
+    }
+
+    return NextResponse.json(
+      { success: false, error: 'Geçersiz endpoint' },
+      { status: 404, headers: corsHeaders }
+    );
+
+  } catch (error) {
+    console.error('POST Error:', error);
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500, headers: corsHeaders }
+    );
+  }
+}
