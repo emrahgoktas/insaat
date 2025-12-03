@@ -93,7 +93,7 @@ const serviceDetails = [
     items: [
       {
         name: 'İngiltere Anaokulu',
-        description: 'Londra'da faaliyet gösteren anaokulu yatırımı'
+        description: 'Londra\'da faaliyet gösteren anaokulu yatırımı'
       },
       {
         name: 'Üniversite İşbirlikleri',
