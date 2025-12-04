@@ -42,9 +42,6 @@ export async function POST(request) {
 
     const body = await request.json();
 
-    const client = await connectToDatabase();
-    const db = client.db(DB_NAME);
-
     // İletişim formu gönderimi
     if (endpoint === 'contact') {
       const { name, email, phone, subject, message, kvkkConsent } = body;
@@ -66,28 +63,55 @@ export async function POST(request) {
         );
       }
 
-      const contactData = {
-        id: uuidv4(),
-        name,
-        email,
-        phone: phone || '',
-        subject: subject || 'Genel',
-        message,
-        kvkkConsent,
-        status: 'new',
-        createdAt: new Date().toISOString(),
-      };
+      try {
+        // Resend ile email gönder
+        await resend.emails.send({
+          from: 'Halef Grup Yapı <onboarding@resend.dev>',
+          to: ['info@halefyapi.com'],
+          subject: `Yeni İletişim Formu: ${subject || 'Genel'}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #0A2463; border-bottom: 3px solid #D4AF37; padding-bottom: 10px;">
+                Yeni İletişim Formu Mesajı
+              </h2>
+              
+              <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 10px 0;"><strong>Ad Soyad:</strong> ${name}</p>
+                <p style="margin: 10px 0;"><strong>E-posta:</strong> ${email}</p>
+                <p style="margin: 10px 0;"><strong>Telefon:</strong> ${phone || 'Belirtilmemiş'}</p>
+                <p style="margin: 10px 0;"><strong>Konu:</strong> ${subject || 'Genel'}</p>
+              </div>
+              
+              <div style="margin: 20px 0;">
+                <h3 style="color: #0A2463;">Mesaj:</h3>
+                <p style="background-color: #fff; padding: 15px; border-left: 4px solid #D4AF37; border-radius: 4px;">
+                  ${message}
+                </p>
+              </div>
+              
+              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
+                <p>Bu mesaj www.halefyapi.com web sitesindeki iletişim formundan gönderilmiştir.</p>
+                <p>Tarih: ${new Date().toLocaleString('tr-TR')}</p>
+              </div>
+            </div>
+          `,
+        });
 
-      await db.collection('contacts').insertOne(contactData);
+        return NextResponse.json(
+          { 
+            success: true, 
+            message: 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.'
+          },
+          { headers: corsHeaders }
+        );
 
-      return NextResponse.json(
-        { 
-          success: true, 
-          message: 'Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.',
-          data: { id: contactData.id }
-        },
-        { headers: corsHeaders }
-      );
+      } catch (emailError) {
+        console.error('Email gönderim hatası:', emailError);
+        return NextResponse.json(
+          { success: false, error: 'Email gönderilirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.' },
+          { status: 500, headers: corsHeaders }
+        );
+      }
     }
 
     return NextResponse.json(
