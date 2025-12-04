@@ -98,16 +98,16 @@ export default function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mt-4 pb-4 space-y-2">
+          <div className="lg:hidden mt-4 pb-4 space-y-2 bg-background/98 backdrop-blur-lg rounded-xl shadow-xl border border-border p-4">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                   pathname === item.href
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-muted'
+                    ? 'bg-primary text-primary-foreground shadow-md'
+                    : 'text-foreground hover:bg-muted hover:translate-x-1'
                 }`}
               >
                 {item.name}
