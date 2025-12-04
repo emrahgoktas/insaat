@@ -55,8 +55,21 @@ export async function GET(request) {
     // İletişim formlarını getir
     if (endpoint === 'contacts') {
       const contacts = await db.collection('contacts')
-        .find({})
+        .find({}, { 
+          projection: { 
+            _id: 1, 
+            id: 1,
+            name: 1, 
+            email: 1, 
+            phone: 1,
+            subject: 1, 
+            message: 1,
+            createdAt: 1, 
+            status: 1 
+          } 
+        })
         .sort({ createdAt: -1 })
+        .limit(100)
         .toArray();
 
       return NextResponse.json(
