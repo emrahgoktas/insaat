@@ -151,6 +151,27 @@ export default function ContactPage() {
                 </Card>
               </div>
 
+              {/* Şirket Bilgileri */}
+              <Card className="mb-8 bg-muted/30">
+                <CardContent className="p-6">
+                  <h3 className="font-bold text-lg mb-4 text-foreground">Şirket Bilgileri</h3>
+                  <div className="space-y-2 text-sm">
+                    <p className="text-muted-foreground">
+                      <span className="font-semibold text-foreground">Vergi Dairesi:</span> {companyInfo.taxOffice}
+                    </p>
+                    <p className="text-muted-foreground">
+                      <span className="font-semibold text-foreground">Vergi No:</span> {companyInfo.taxNumber}
+                    </p>
+                    <p className="text-muted-foreground">
+                      <span className="font-semibold text-foreground">Ticaret Sicil No:</span> {companyInfo.tradeRegistryNumber}
+                    </p>
+                    <p className="text-muted-foreground">
+                      <span className="font-semibold text-foreground">Mersis No:</span> {companyInfo.mersisNumber}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Harita */}
               <Card className="overflow-hidden">
                 <iframe
