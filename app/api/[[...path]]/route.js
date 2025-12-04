@@ -1,34 +1,7 @@
-import { MongoClient } from 'mongodb';
+import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
-import { v4 as uuidv4 } from 'uuid';
 
-const MONGO_URL = process.env.MONGO_URL;
-const DB_NAME = process.env.DB_NAME;
-
-if (!DB_NAME) {
-  throw new Error('DB_NAME environment variable is required');
-}
-
-let cachedClient = null;
-
-async function connectToDatabase() {
-  if (cachedClient) {
-    return cachedClient;
-  }
-
-  try {
-    const client = await MongoClient.connect(MONGO_URL, {
-      maxPoolSize: 10,
-      minPoolSize: 2,
-    });
-    cachedClient = client;
-    console.log('MongoDB bağlantısı başarılı');
-    return client;
-  } catch (error) {
-    console.error('MongoDB bağlantı hatası:', error);
-    throw error;
-  }
-}
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // CORS headers
 const corsHeaders = {
