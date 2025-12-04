@@ -61,7 +61,7 @@ export default function HomePage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+            <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 border-2 border-white">
               <Link href="/iletisim">İletişime Geç</Link>
             </Button>
           </div>
