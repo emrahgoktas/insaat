@@ -89,10 +89,29 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center">
-          <p className="text-sm text-primary-foreground/60">
-            © {new Date().getFullYear()} {companyInfo.name}. Tüm hakları saklıdır.
-          </p>
+        <div className="border-t border-primary-foreground/20 mt-8 pt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-primary-foreground/60">
+              © {new Date().getFullYear()} {companyInfo.name}. Tüm hakları saklıdır.
+            </p>
+            
+            {/* Web Tasarım Firma Logosu */}
+            <a 
+              href="https://emrahgoktas.com/" 
+              target="_blank" 
+              rel="dofollow"
+              className="flex items-center gap-2 group transition-all duration-200 hover:scale-105"
+            >
+              <span className="text-xs text-primary-foreground/60 group-hover:text-secondary transition-colors">
+                Web Tasarım:
+              </span>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_3f7647fb-9cf0-48e0-8403-f72a7676d84d/artifacts/pjvzn14h_logo-2.png"
+                alt="Emrah Göktaş Web Tasarım"
+                className="h-8 w-auto opacity-80 group-hover:opacity-100 transition-opacity"
+              />
+            </a>
+          </div>
         </div>
       </div>
     </footer>
