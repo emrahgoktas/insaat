@@ -34,11 +34,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-background/95 backdrop-blur-md shadow-md' : 'bg-transparent'
-      }`}
-    >
+    <header className="fixed top-0 left-0 right-0 z-50 bg-primary shadow-lg">
       <nav className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -49,10 +45,10 @@ export default function Header() {
               className="h-12 w-auto"
             />
             <div className="flex flex-col">
-              <span className="font-bold text-lg text-foreground leading-none">
+              <span className="font-bold text-lg text-white leading-none">
                 {companyInfo.name}
               </span>
-              <span className="text-xs text-muted-foreground">{companyInfo.slogan}</span>
+              <span className="text-xs text-secondary">{companyInfo.slogan}</span>
             </div>
           </Link>
 
@@ -62,10 +58,10 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   pathname === item.href
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-foreground hover:bg-muted'
+                    ? 'bg-secondary text-primary shadow-md'
+                    : 'text-white hover:bg-white/10 hover:text-secondary'
                 }`}
               >
                 {item.name}
@@ -80,7 +76,7 @@ export default function Header() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="rounded-lg"
+                className="rounded-lg text-white hover:bg-white/10 hover:text-secondary"
               >
                 {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
@@ -88,7 +84,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden text-white hover:bg-white/10"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -98,7 +94,7 @@ export default function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden mt-4 pb-4 space-y-2 bg-background/98 backdrop-blur-lg rounded-xl shadow-xl border border-border p-4">
+          <div className="lg:hidden mt-4 pb-4 space-y-2 bg-primary/95 backdrop-blur-lg rounded-xl shadow-xl border border-white/10 p-4">
             {navigation.map((item) => (
               <Link
                 key={item.name}
@@ -106,8 +102,8 @@ export default function Header() {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                   pathname === item.href
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'text-foreground hover:bg-muted hover:translate-x-1'
+                    ? 'bg-secondary text-primary shadow-md'
+                    : 'text-white hover:bg-white/10 hover:translate-x-1 hover:text-secondary'
                 }`}
               >
                 {item.name}
