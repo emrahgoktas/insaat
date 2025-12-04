@@ -18,42 +18,9 @@ export async function OPTIONS() {
 // GET handler
 export async function GET(request) {
   try {
-    const { pathname } = new URL(request.url);
-    const pathParts = pathname.split('/').filter(Boolean);
-    const endpoint = pathParts[1]; // 'api' sonrası ilk segment
-
-    const client = await connectToDatabase();
-    const db = client.db(DB_NAME);
-
-    // İletişim formlarını getir
-    if (endpoint === 'contacts') {
-      const contacts = await db.collection('contacts')
-        .find({}, { 
-          projection: { 
-            _id: 1, 
-            id: 1,
-            name: 1, 
-            email: 1, 
-            phone: 1,
-            subject: 1, 
-            message: 1,
-            createdAt: 1, 
-            status: 1 
-          } 
-        })
-        .sort({ createdAt: -1 })
-        .limit(100)
-        .toArray();
-
-      return NextResponse.json(
-        { success: true, data: contacts },
-        { headers: corsHeaders }
-      );
-    }
-
     // Varsayılan endpoint
     return NextResponse.json(
-      { success: true, message: 'Halef Grup Yapı API' },
+      { success: true, message: 'Halef Grup Yapı API - Email gönderimi aktif' },
       { headers: corsHeaders }
     );
 
