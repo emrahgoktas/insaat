@@ -21,9 +21,11 @@ export default function Footer() {
           {/* Şirket Bilgisi */}
           <div>
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
-                <span className="text-primary font-bold text-xl">H</span>
-              </div>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_3f7647fb-9cf0-48e0-8403-f72a7676d84d/artifacts/065cwz7x_logo.png"
+                alt="Halef Grup Yapı"
+                className="h-10 w-auto"
+              />
               <div>
                 <h3 className="font-bold text-lg">{companyInfo.name}</h3>
                 <p className="text-xs text-primary-foreground/80">{companyInfo.slogan}</p>
